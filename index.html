@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Stream Player</title>
+<title>AutoPlay Live Stream</title>
 
 <style>
-    body, html {
+    html, body {
         margin: 0;
         padding: 0;
-        background: black;
         height: 100%;
         width: 100%;
         overflow: hidden;
+        background: black;
     }
 
     #video {
@@ -22,44 +22,44 @@
         background: black;
     }
 
-    /* Exit Button */
+    /* EXIT button */
     #exitBtn {
         position: fixed;
         top: 15px;
         right: 15px;
-        z-index: 9999;
+        z-index: 5000;
         background: rgba(255, 0, 0, 0.6);
         color: white;
-        border-radius: 8px;
         padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
         font-size: 16px;
         cursor: pointer;
-        border: none;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(6px);
     }
 
     #exitBtn:hover {
         background: rgba(255, 0, 0, 0.85);
     }
 
-    /* Fullscreen toggle button */
+    /* Fullscreen Button */
     #fsBtn {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 9999;
-        background: rgba(255, 255, 255, 0.4);
-        color: black;
-        border-radius: 50%;
         width: 55px;
         height: 55px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(4px);
+        border: none;
+        font-size: 26px;
+        cursor: pointer;
+        z-index: 5000;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 26px;
-        cursor: pointer;
-        transition: 0.2s;
-        opacity: 0.6;
+        opacity: 0.7;
     }
 
     #fsBtn:hover {
@@ -69,41 +69,57 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 </head>
 <body>
 
 <button id="exitBtn" onclick="exitPlayer()">EXIT ✖</button>
-
 <button id="fsBtn" onclick="toggleFullscreen()">⛶</button>
 
-<video id="video" controls autoplay playsinline></video>
+<!-- IMPORTANT for autoplay: muted + playsinline -->
+<video id="video" muted autoplay playsinline></video>
 
 <script>
-    const video = document.getElementById('video');
-    const streamURL = "http://147.12.178.25:8882/Greentv/index.m3u8";
+    const video = document.getElementById("video");
+    const url = "http://147.12.178.25:8882/Greentv/index.m3u8";
 
-    // Play M3U8
-    if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(streamURL);
-        hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = streamURL; // iOS Safari fallback
+    function startPlayback() {
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            video.muted = true; // Required for autoplay
+            video.play();
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url; // iOS Safari
+            video.muted = true;
+            video.play();
+        }
+
+        openFullscreen();
     }
 
-    // Auto fullscreen on load
+    // Force autoplay once page loads
     window.onload = () => {
-        video.play();
-        openFullscreen();
+        setTimeout(() => {
+            video.play().catch(() => {
+                // Retry if autoplay blocked
+                video.muted = true;
+                video.play();
+            });
+        }, 200);
+
+        startPlayback();
     };
 
-    // Fullscreen functions
+    // Go Fullscreen
     function openFullscreen() {
         if (video.requestFullscreen) video.requestFullscreen();
         else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
         else if (video.msRequestFullscreen) video.msRequestFullscreen();
     }
 
+    // Toggle Fullscreen Button
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
             openFullscreen();
@@ -112,7 +128,7 @@
         }
     }
 
-    // Exit Page
+    // Exit Player
     function exitPlayer() {
         window.location.href = "about:blank";
     }
