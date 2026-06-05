@@ -1,138 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AutoPlay Live Stream</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Hub & Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --search-bg: rgba(255, 255, 255, 0.05);
+        }
 
-<style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        background: black;
-    }
+        [data-theme="light"] {
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(0, 0, 0, 0.05);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-color: #4f46e5;
+            --accent-glow: rgba(79, 70, 229, 0.15);
+            --search-bg: rgba(255, 255, 255, 0.85);
+        }
 
-    #video {
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover;
-        background: black;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s, color 0.3s, border 0.3s;
+        }
 
-    /* EXIT button */
-    #exitBtn {
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        z-index: 5000;
-        background: rgba(255, 0, 0, 0.6);
-        color: white;
-        padding: 10px 18px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        backdrop-filter: blur(6px);
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Dynamic background variables injected by JS */
+            background: linear-gradient(135deg, var(--bg-color-1, #0f172a), var(--bg-color-2, #1e1b4b));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            transition: --bg-color-1 2s linear, --bg-color-2 2s linear;
+        }
 
-    #exitBtn:hover {
-        background: rgba(255, 0, 0, 0.85);
-    }
+        [data-theme="light"] body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+        }
 
-    /* Fullscreen Button */
-    #fsBtn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(4px);
-        border: none;
-        font-size: 26px;
-        cursor: pointer;
-        z-index: 5000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0.7;
-    }
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
 
-    #fsBtn:hover {
-        opacity: 1;
-        background: white;
-    }
-</style>
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        .profile-info h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+        }
 
+        .profile-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .time-display, .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-color);
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            background: var(--search-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Link Grid Layout */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        /* Link Card Styles */
+        .link-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem 1.25rem;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            transform: translateY(0);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .link-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="light"] .link-card:hover {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .icon-wrapper {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .link-info h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .card-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .arrow-icon {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .link-card:hover .arrow-icon {
+            color: var(--accent-color);
+            transform: translateX(2px);
+            transition: transform 0.2s;
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        /* No Results Message */
+        .no-results {
+            display: none;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-<button id="exitBtn" onclick="exitPlayer()">EXIT ✖</button>
-<button id="fsBtn" onclick="toggleFullscreen()">⛶</button>
+    <div class="container">
+        <header>
+            <div class="profile-info">
+                <h1>Personal Hub</h1>
+                <p>Private Navigation & Control Center</p>
+            </div>
+            <div class="controls">
+                <div class="time-display" id="liveClock">00:00:00 PM</div>
+                <button class="theme-toggle" id="themeBtn" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
 
-<!-- IMPORTANT for autoplay: muted + playsinline -->
-<video id="video" muted autoplay playsinline></video>
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchBox" class="search-bar" placeholder="Search system name...">
+        </div>
 
-<script>
-    const video = document.getElementById("video");
-    const url = "http://147.12.178.25:8882/Greentv/index.m3u8";
+        <div class="links-grid" id="linksGrid">
+            
+            <a href="http://103.150.57.161:3000/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-brands fa-telegram"></i></div>
+                    <div class="link-info">
+                        <h3>Telegram Group</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
 
-    function startPlayback() {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            video.muted = true; // Required for autoplay
-            video.play();
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = url; // iOS Safari
-            video.muted = true;
-            video.play();
-        }
+            <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="link-info">
+                        <h3>Live Connection</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
 
-        openFullscreen();
-    }
+            <a href="http://103.150.57.161:8181/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-tv"></i></div>
+                    <div class="link-info">
+                        <h3>Live Watch</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
 
-    // Force autoplay once page loads
-    window.onload = () => {
-        setTimeout(() => {
-            video.play().catch(() => {
-                // Retry if autoplay blocked
-                video.muted = true;
-                video.play();
+            <a href="https://greentv.casacam.net/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
+                    <div class="link-info">
+                        <h3>Green Meeting</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://103.150.57.161:8000/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-key"></i></div>
+                    <div class="link-info">
+                        <h3>Token Manager</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://170.9.226.121:51821/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="link-info">
+                        <h3>WireGuard</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://170.9.226.121:3300/" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-newspaper"></i></div>
+                    <div class="link-info">
+                        <h3>Green News</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="https://192.168.0.135:5001/?launchApp=SYNO.SDS.DownloadStation.Application" target="_blank" class="link-card">
+                <div class="card-left">
+                    <div class="icon-wrapper"><i class="fa-solid fa-download"></i></div>
+                    <div class="link-info">
+                        <h3>NAS Download</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+        </div>
+
+        <div class="no-results" id="noResults">
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
+            No matching links found.
+        </div>
+    </div>
+
+    <footer>
+        Hosted securely via GitHub Pages &bull; Designed elegantly.
+    </footer>
+
+    <script>
+        // --- 1. Real-time Search Function ---
+        const searchBox = document.getElementById('searchBox');
+        const linkCards = document.querySelectorAll('.link-card');
+        const noResults = document.getElementById('noResults');
+
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            let matches = 0;
+
+            linkCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                
+                if (title.includes(query)) {
+                    card.style.display = 'flex';
+                    matches++;
+                } else {
+                    card.style.display = 'none';
+                }
             });
-        }, 200);
 
-        startPlayback();
-    };
+            noResults.style.display = matches === 0 ? 'block' : 'none';
+        });
 
-    // Go Fullscreen
-    function openFullscreen() {
-        if (video.requestFullscreen) video.requestFullscreen();
-        else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-        else if (video.msRequestFullscreen) video.msRequestFullscreen();
-    }
-
-    // Toggle Fullscreen Button
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            openFullscreen();
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
+        // --- 2. Live Header Clock ---
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const strTime = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+            
+            document.getElementById('liveClock').textContent = strTime;
         }
-    }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-    // Exit Player
-    function exitPlayer() {
-        window.location.href = "about:blank";
-    }
-</script>
+        // --- 3. Custom Continuous Rainbow Aura Engine ---
+        let hue = 0;
+        function animateRainbowAura() {
+            // Only update colors if we are not in light mode
+            if (document.body.getAttribute('data-theme') !== 'light') {
+                hue = (hue + 0.5) % 360; // Increase number to speed up transitions
+                
+                // Creates a complementary split gradient across the rainbow spectrum
+                const color1 = `hsl(${hue}, 45%, 8%)`;
+                const color2 = `hsl(${(hue + 60) % 360}, 50%, 10%)`;
+                
+                document.body.style.setProperty('--bg-color-1', color1);
+                document.body.style.setProperty('--bg-color-2', color2);
+            }
+            requestAnimationFrame(animateRainbowAura);
+        }
+        // Fire up the aura engine
+        animateRainbowAura();
 
+        // --- 4. Smart Dark / Light Mode Trigger ---
+        const themeBtn = document.getElementById('themeBtn');
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+
+        if (currentTheme === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            let theme = 'dark';
+            if (document.body.getAttribute('data-theme') !== 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                document.body.style.removeProperty('--bg-color-1');
+                document.body.style.removeProperty('--bg-color-2');
+                theme = 'light';
+            } else {
+                document.body.removeAttribute('data-theme');
+                themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            }
+            localStorage.setItem('theme', theme);
+        });
+    </script>
 </body>
 </html>
