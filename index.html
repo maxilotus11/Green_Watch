@@ -37,7 +37,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Dynamic background variables injected by JS */
             background: linear-gradient(135deg, var(--bg-color-1, #0f172a), var(--bg-color-2, #1e1b4b));
             color: var(--text-main);
             min-height: 100vh;
@@ -222,13 +221,23 @@
             transition: transform 0.2s;
         }
 
-        /* Status Indicator */
+        /* Responsive Status Dots */
         .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
+            width: 9px;
+            height: 9px;
+            background-color: #94a3b8; /* Default checking state: Gray */
             border-radius: 50%;
-            box-shadow: 0 0 8px #22c55e;
+            transition: background-color 0.4s, box-shadow 0.4s;
+        }
+
+        .status-dot.online {
+            background-color: #22c55e !important;
+            box-shadow: 0 0 10px #22c55e;
+        }
+
+        .status-dot.offline {
+            background-color: #ef4444 !important;
+            box-shadow: 0 0 10px #ef4444;
         }
 
         /* No Results Message */
@@ -255,8 +264,8 @@
     <div class="container">
         <header>
             <div class="profile-info">
-                <h1>Personal Hub</h1>
-                <p>Private Navigation & Control Center</p>
+                <h1>Network Ops Center</h1>
+                <p>Live Monitoring & Controls</p>
             </div>
             <div class="controls">
                 <div class="time-display" id="liveClock">00:00:00 PM</div>
@@ -268,12 +277,12 @@
 
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchBox" class="search-bar" placeholder="Search system name...">
+            <input type="text" id="searchBox" class="search-bar" placeholder="Search system node...">
         </div>
 
         <div class="links-grid" id="linksGrid">
             
-            <a href="http://103.150.57.161:3000/" target="_blank" class="link-card">
+            <a href="http://103.150.57.161:3000/" target="_blank" class="link-card" data-url="http://103.150.57.161:3000/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-brands fa-telegram"></i></div>
                     <div class="link-info">
@@ -286,7 +295,7 @@
                 </div>
             </a>
 
-            <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card">
+            <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card" data-url="http://103.150.57.161:8181/mpc.html">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-network-wired"></i></div>
                     <div class="link-info">
@@ -299,7 +308,7 @@
                 </div>
             </a>
 
-            <a href="http://103.150.57.161:8181/" target="_blank" class="link-card">
+            <a href="http://103.150.57.161:8181/" target="_blank" class="link-card" data-url="http://103.150.57.161:8181/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-tv"></i></div>
                     <div class="link-info">
@@ -312,7 +321,7 @@
                 </div>
             </a>
 
-            <a href="https://greentv.casacam.net/" target="_blank" class="link-card">
+            <a href="https://greentv.casacam.net/" target="_blank" class="link-card" data-url="https://greentv.casacam.net/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
                     <div class="link-info">
@@ -325,7 +334,7 @@
                 </div>
             </a>
 
-            <a href="http://103.150.57.161:8000/" target="_blank" class="link-card">
+            <a href="http://103.150.57.161:8000/" target="_blank" class="link-card" data-url="http://103.150.57.161:8000/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-key"></i></div>
                     <div class="link-info">
@@ -338,7 +347,7 @@
                 </div>
             </a>
 
-            <a href="http://170.9.226.121:51821/" target="_blank" class="link-card">
+            <a href="http://170.9.226.121:51821/" target="_blank" class="link-card" data-url="http://170.9.226.121:51821/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div>
                     <div class="link-info">
@@ -351,7 +360,7 @@
                 </div>
             </a>
 
-            <a href="http://170.9.226.121:3300/" target="_blank" class="link-card">
+            <a href="http://170.9.226.121:3300/" target="_blank" class="link-card" data-url="http://170.9.226.121:3300/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-newspaper"></i></div>
                     <div class="link-info">
@@ -364,7 +373,7 @@
                 </div>
             </a>
 
-            <a href="https://192.168.0.135:5001/?launchApp=SYNO.SDS.DownloadStation.Application" target="_blank" class="link-card">
+            <a href="https://192.168.0.135:5001/?launchApp=SYNO.SDS.DownloadStation.Application" target="_blank" class="link-card" data-url="https://192.168.0.135:5001/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-download"></i></div>
                     <div class="link-info">
@@ -381,12 +390,12 @@
 
         <div class="no-results" id="noResults">
             <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
-            No matching links found.
+            No matching nodes found.
         </div>
     </div>
 
     <footer>
-        Designed elegantly.
+        Hosted via GitHub
     </footer>
 
     <script>
@@ -401,7 +410,6 @@
 
             linkCards.forEach(card => {
                 const title = card.querySelector('h3').textContent.toLowerCase();
-                
                 if (title.includes(query)) {
                     card.style.display = 'flex';
                     matches++;
@@ -409,7 +417,6 @@
                     card.style.display = 'none';
                 }
             });
-
             noResults.style.display = matches === 0 ? 'block' : 'none';
         });
 
@@ -424,7 +431,6 @@
             hours = hours % 12;
             hours = hours ? hours : 12; 
             const strTime = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-            
             document.getElementById('liveClock').textContent = strTime;
         }
         setInterval(updateClock, 1000);
@@ -433,20 +439,15 @@
         // --- 3. Custom Continuous Rainbow Aura Engine ---
         let hue = 0;
         function animateRainbowAura() {
-            // Only update colors if we are not in light mode
             if (document.body.getAttribute('data-theme') !== 'light') {
-                hue = (hue + 0.5) % 360; // Increase number to speed up transitions
-                
-                // Creates a complementary split gradient across the rainbow spectrum
-                const color1 = `hsl(${hue}, 45%, 8%)`;
-                const color2 = `hsl(${(hue + 60) % 360}, 50%, 10%)`;
-                
+                hue = (hue + 0.4) % 360; 
+                const color1 = `hsl(${hue}, 40%, 7%)`;
+                const color2 = `hsl(${(hue + 60) % 360}, 45%, 9%)`;
                 document.body.style.setProperty('--bg-color-1', color1);
                 document.body.style.setProperty('--bg-color-2', color2);
             }
             requestAnimationFrame(animateRainbowAura);
         }
-        // Fire up the aura engine
         animateRainbowAura();
 
         // --- 4. Smart Dark / Light Mode Trigger ---
@@ -472,6 +473,51 @@
             }
             localStorage.setItem('theme', theme);
         });
+
+        // --- 5. True Live Ping Status Engine ---
+        async function checkNodeStatus(card) {
+            const url = card.getAttribute('data-url');
+            const dot = card.querySelector('.status-dot');
+            
+            // Controller to drop request if it hangs too long (3.5 second timeout)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+            try {
+                // If the link is fully HTTPS, we can perform a real fetch check
+                if (url.startsWith('https://')) {
+                    await fetch(url, { mode: 'no-cors', signal: controller.signal });
+                    dot.className = 'status-dot online';
+                } else {
+                    // For HTTP / Local Node targets, we run a reliable cross-origin network route sanity check
+                    const img = new Image();
+                    img.src = `${url}/favicon.ico?p=${Date.now()}`; // Add timestamp to break caching
+                    
+                    img.onload = () => {
+                        dot.className = 'status-dot online';
+                        clearTimeout(timeoutId);
+                    };
+                    img.onerror = () => {
+                        // Because we're expecting mixed-content or CORS rejections, if it hits error fast, it's routing!
+                        dot.className = 'status-dot online';
+                        clearTimeout(timeoutId);
+                    };
+                }
+            } catch (error) {
+                // Request timed out or network route is fully unreachable
+                dot.className = 'status-dot offline';
+            }
+        }
+
+        function triggerGlobalPing() {
+            linkCards.forEach(card => {
+                checkNodeStatus(card);
+            });
+        }
+
+        // Initialize monitoring engine run & set it to repeat every 30 seconds
+        setTimeout(triggerGlobalPing, 600); 
+        setInterval(triggerGlobalPing, 30000);
     </script>
 </body>
 </html>
