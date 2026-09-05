@@ -240,6 +240,93 @@
             box-shadow: 0 0 10px #ef4444;
         }
 
+        .icon-wrapper.oracle {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .icon-wrapper.utility {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+        }
+
+        /* Section Labels (grouping the grid into networks) */
+        .section-label {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 1.75rem 0 0.35rem;
+        }
+
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
+        .section-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .section-dot.greentv { background: #6366f1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.6); }
+        .section-dot.oracle { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+        .section-dot.utility { background: #94a3b8; box-shadow: 0 0 8px rgba(148, 163, 184, 0.5); }
+
+        /* Live Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .stat-pill strong {
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .stat-pill .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stat-pill.online .stat-dot { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .stat-pill.offline .stat-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        /* Staggered Card Entrance Animation */
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .link-card {
+            opacity: 0;
+            animation: cardFadeIn 0.55s ease forwards;
+        }
+
         /* No Results Message */
         .no-results {
             display: none;
@@ -280,26 +367,21 @@
             <input type="text" id="searchBox" class="search-bar" placeholder="Search system node...">
         </div>
 
-        <div class="links-grid" id="linksGrid">
-            
-            <a href="http://103.150.57.161:3000/" target="_blank" class="link-card" data-url="http://103.150.57.161:3000/">
-                <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-brands fa-telegram"></i></div>
-                    <div class="link-info">
-                        <h3>Telegram Group</h3>
-                    </div>
-                </div>
-                <div class="card-right">
-                    <div class="status-dot"></div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
+        <div class="stats-bar">
+            <div class="stat-pill"><i class="fa-solid fa-layer-group"></i>&nbsp;<strong id="statTotal">0</strong>&nbsp;Nodes</div>
+            <div class="stat-pill online"><span class="stat-dot"></span>&nbsp;<strong id="statOnline">0</strong>&nbsp;Online</div>
+            <div class="stat-pill offline"><span class="stat-dot"></span>&nbsp;<strong id="statOffline">0</strong>&nbsp;Offline</div>
+        </div>
 
-            <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card" data-url="http://103.150.57.161:8181/mpc.html">
+        <div class="links-grid" id="linksGrid">
+
+            <div class="section-label" id="label-greentv"><span class="section-dot greentv"></span>GreenTV Network</div>
+
+            <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8181/mpc.html">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-network-wired"></i></div>
                     <div class="link-info">
-                        <h3>Live Connection</h3>
+                        <h3>Live Connection-GrnTV</h3>
                     </div>
                 </div>
                 <div class="card-right">
@@ -308,11 +390,11 @@
                 </div>
             </a>
 
-            <a href="http://103.150.57.161:8181/" target="_blank" class="link-card" data-url="http://103.150.57.161:8181/">
+            <a href="http://103.150.57.161:8181/" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8181/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-tv"></i></div>
                     <div class="link-info">
-                        <h3>Live Watch</h3>
+                        <h3>Live Watch-GrnTV</h3>
                     </div>
                 </div>
                 <div class="card-right">
@@ -321,7 +403,7 @@
                 </div>
             </a>
 
-            <a href="https://greentv.casacam.net/" target="_blank" class="link-card" data-url="https://greentv.casacam.net/">
+            <a href="https://greentv.casacam.net/" target="_blank" class="link-card" data-group="greentv" data-url="https://greentv.casacam.net/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
                     <div class="link-info">
@@ -334,11 +416,11 @@
                 </div>
             </a>
 
-            <a href="http://103.150.57.161:8000/" target="_blank" class="link-card" data-url="http://103.150.57.161:8000/">
+            <a href="http://103.150.57.161:8000/" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8000/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-key"></i></div>
                     <div class="link-info">
-                        <h3>Token Manager</h3>
+                        <h3>Token Mngr-GrnTV</h3>
                     </div>
                 </div>
                 <div class="card-right">
@@ -347,20 +429,7 @@
                 </div>
             </a>
 
-            <a href="http://170.9.226.121:51821/" target="_blank" class="link-card" data-url="http://170.9.226.121:51821/">
-                <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div>
-                    <div class="link-info">
-                        <h3>WireGuard</h3>
-                    </div>
-                </div>
-                <div class="card-right">
-                    <div class="status-dot"></div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="http://170.9.226.121:3300/" target="_blank" class="link-card" data-url="http://170.9.226.121:3300/">
+            <a href="http://170.9.226.121:3300/" target="_blank" class="link-card" data-group="greentv" data-url="http://170.9.226.121:3300/">
                 <div class="card-left">
                     <div class="icon-wrapper"><i class="fa-solid fa-newspaper"></i></div>
                     <div class="link-info">
@@ -373,9 +442,104 @@
                 </div>
             </a>
 
-            <a href="https://192.168.0.135:5001/?launchApp=SYNO.SDS.DownloadStation.Application" target="_blank" class="link-card" data-url="https://192.168.0.135:5001/">
+            <div class="section-label" id="label-oracle"><span class="section-dot oracle"></span>Oracle Network</div>
+
+            <a href="http://170.9.226.121:8000/login" target="_blank" class="link-card" data-group="oracle" data-url="http://170.9.226.121:8000/">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-download"></i></div>
+                    <div class="icon-wrapper oracle"><i class="fa-solid fa-key"></i></div>
+                    <div class="link-info">
+                        <h3>Token Mngr-Oracle</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://170.9.226.121:8282/" target="_blank" class="link-card" data-group="oracle" data-url="http://170.9.226.121:8282/">
+                <div class="card-left">
+                    <div class="icon-wrapper oracle"><i class="fa-solid fa-tv"></i></div>
+                    <div class="link-info">
+                        <h3>Live Watch-Oracle</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="https://maxilotus.giize.com/" target="_blank" class="link-card" data-group="oracle" data-url="https://maxilotus.giize.com/">
+                <div class="card-left">
+                    <div class="icon-wrapper oracle"><i class="fa-solid fa-video"></i></div>
+                    <div class="link-info">
+                        <h3>Oracle Meeting</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://maxilotus.giize.com:99/manager.html" target="_blank" class="link-card" data-group="oracle" data-url="http://maxilotus.giize.com:99/">
+                <div class="card-left">
+                    <div class="icon-wrapper oracle"><i class="fa-solid fa-sliders"></i></div>
+                    <div class="link-info">
+                        <h3>Live Ticker Mngr-Orcle</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://maxilotus.giize.com:99/ticker.html" target="_blank" class="link-card" data-group="oracle" data-url="http://maxilotus.giize.com:99/">
+                <div class="card-left">
+                    <div class="icon-wrapper oracle"><i class="fa-solid fa-scroll"></i></div>
+                    <div class="link-info">
+                        <h3>Live Ticker-Orcle</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <div class="section-label" id="label-utility"><span class="section-dot utility"></span>Utilities</div>
+
+            <a href="http://103.150.57.161:3000/" target="_blank" class="link-card" data-group="utility" data-url="http://103.150.57.161:3000/">
+                <div class="card-left">
+                    <div class="icon-wrapper utility"><i class="fa-brands fa-telegram"></i></div>
+                    <div class="link-info">
+                        <h3>Telegram Group</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://170.9.226.121:51821/" target="_blank" class="link-card" data-group="utility" data-url="http://170.9.226.121:51821/">
+                <div class="card-left">
+                    <div class="icon-wrapper utility"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="link-info">
+                        <h3>WireGuard</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="https://192.168.0.135:5001/?launchApp=SYNO.SDS.DownloadStation.Application" target="_blank" class="link-card" data-group="utility" data-url="https://192.168.0.135:5001/">
+                <div class="card-left">
+                    <div class="icon-wrapper utility"><i class="fa-solid fa-download"></i></div>
                     <div class="link-info">
                         <h3>NAS Download</h3>
                     </div>
@@ -403,20 +567,32 @@
         const searchBox = document.getElementById('searchBox');
         const linkCards = document.querySelectorAll('.link-card');
         const noResults = document.getElementById('noResults');
+        const sectionLabels = document.querySelectorAll('.section-label');
 
         searchBox.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             let matches = 0;
+            const groupHasVisible = {};
 
             linkCards.forEach(card => {
                 const title = card.querySelector('h3').textContent.toLowerCase();
+                const group = card.getAttribute('data-group');
                 if (title.includes(query)) {
                     card.style.display = 'flex';
                     matches++;
+                    if (group) groupHasVisible[group] = true;
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            // Hide a section header if every card underneath it got filtered out,
+            // so searching never leaves a floating empty group title.
+            sectionLabels.forEach(label => {
+                const group = label.id.replace('label-', '');
+                label.style.display = groupHasVisible[group] ? 'flex' : 'none';
+            });
+
             noResults.style.display = matches === 0 ? 'block' : 'none';
         });
 
@@ -496,17 +672,34 @@
                     img.onload = () => {
                         dot.className = 'status-dot online';
                         clearTimeout(timeoutId);
+                        recomputeStats();
                     };
                     img.onerror = () => {
                         // Because we're expecting mixed-content or CORS rejections, if it hits error fast, it's routing!
                         dot.className = 'status-dot online';
                         clearTimeout(timeoutId);
+                        recomputeStats();
                     };
                 }
             } catch (error) {
                 // Request timed out or network route is fully unreachable
                 dot.className = 'status-dot offline';
             }
+            recomputeStats();
+        }
+
+        // Tallies the live stats bar (Total / Online / Offline) from whatever
+        // each card's status dot currently shows.
+        function recomputeStats() {
+            let online = 0, offline = 0;
+            linkCards.forEach(card => {
+                const dot = card.querySelector('.status-dot');
+                if (dot.classList.contains('online')) online++;
+                else if (dot.classList.contains('offline')) offline++;
+            });
+            document.getElementById('statTotal').textContent = linkCards.length;
+            document.getElementById('statOnline').textContent = online;
+            document.getElementById('statOffline').textContent = offline;
         }
 
         function triggerGlobalPing() {
@@ -514,6 +707,16 @@
                 checkNodeStatus(card);
             });
         }
+
+        // Stagger each card's entrance animation slightly so they cascade in
+        // rather than all popping at once.
+        linkCards.forEach((card, i) => {
+            card.style.animationDelay = `${i * 40}ms`;
+        });
+
+        // Show the total node count immediately (before the first ping cycle
+        // has a chance to determine online/offline).
+        recomputeStats();
 
         // Initialize monitoring engine run & set it to repeat every 30 seconds
         setTimeout(triggerGlobalPing, 600); 
