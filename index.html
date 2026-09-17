@@ -6,7 +6,7 @@
     <title>Personal Hub & Control Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --card-bg: rgba(255, 255, 255, 0.04);
@@ -67,9 +67,21 @@
         }
 
         .profile-info h1 {
-            font-size: 1.75rem;
+            font-size: 1.9rem;
             font-weight: 700;
             letter-spacing: -0.05em;
+            background: linear-gradient(90deg, #6366f1, #ec4899, #f59e0b, #6366f1);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+            100% { background-position: 0% center; }
         }
 
         .profile-info p {
@@ -113,7 +125,7 @@
         /* Search Bar */
         .search-container {
             position: relative;
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.25rem;
         }
 
         .search-container i {
@@ -142,6 +154,49 @@
             border-color: var(--accent-color);
             box-shadow: 0 0 15px var(--accent-glow);
         }
+
+        /* Filter Chips */
+        .filter-bar {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.75rem;
+        }
+
+        .filter-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.45rem 1.1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--accent-color);
+            color: var(--text-main);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip .chip-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .filter-chip[data-filter="all"].active { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+        .filter-chip[data-filter="greentv"].active { background: #22c55e; border-color: #22c55e; color: #fff; }
+        .filter-chip[data-filter="oracle"].active { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+        .filter-chip[data-filter="remote"].active { background: #ec4899; border-color: #ec4899; color: #fff; }
+        .filter-chip[data-filter="utility"].active { background: #94a3b8; border-color: #94a3b8; color: #0f172a; }
 
         /* Link Grid Layout */
         .links-grid {
@@ -178,6 +233,17 @@
         [data-theme="light"] .link-card:hover {
             background: rgba(255, 255, 255, 0.95);
         }
+
+        /* Group-specific hover colors, so each network glows its own color */
+        .link-card[data-group="greentv"]:hover { border-color: #22c55e; box-shadow: 0 10px 24px rgba(34, 197, 94, 0.28); }
+        .link-card[data-group="oracle"]:hover { border-color: #f59e0b; box-shadow: 0 10px 24px rgba(245, 158, 11, 0.28); }
+        .link-card[data-group="remote"]:hover { border-color: #ec4899; box-shadow: 0 10px 24px rgba(236, 72, 153, 0.28); }
+        .link-card[data-group="utility"]:hover { border-color: #94a3b8; box-shadow: 0 10px 24px rgba(148, 163, 184, 0.28); }
+
+        .link-card[data-group="greentv"]:hover .arrow-icon { color: #22c55e; }
+        .link-card[data-group="oracle"]:hover .arrow-icon { color: #f59e0b; }
+        .link-card[data-group="remote"]:hover .arrow-icon { color: #ec4899; }
+        .link-card[data-group="utility"]:hover .arrow-icon { color: #94a3b8; }
 
         .card-left {
             display: flex;
@@ -240,9 +306,19 @@
             box-shadow: 0 0 10px #ef4444;
         }
 
+        .icon-wrapper.greentv {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
         .icon-wrapper.oracle {
             background: rgba(245, 158, 11, 0.15);
             color: #f59e0b;
+        }
+
+        .icon-wrapper.remote {
+            background: rgba(236, 72, 153, 0.15);
+            color: #ec4899;
         }
 
         .icon-wrapper.utility {
@@ -275,8 +351,9 @@
             flex-shrink: 0;
         }
 
-        .section-dot.greentv { background: #6366f1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.6); }
+        .section-dot.greentv { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
         .section-dot.oracle { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+        .section-dot.remote { background: #ec4899; box-shadow: 0 0 8px rgba(236, 72, 153, 0.6); }
         .section-dot.utility { background: #94a3b8; box-shadow: 0 0 8px rgba(148, 163, 184, 0.5); }
 
         /* Live Stats Bar */
@@ -367,6 +444,14 @@
             <input type="text" id="searchBox" class="search-bar" placeholder="Search system node...">
         </div>
 
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-chip active" data-filter="all"><span class="chip-dot" style="background:var(--accent-color)"></span>All</button>
+            <button class="filter-chip" data-filter="greentv"><span class="chip-dot" style="background:#22c55e"></span>GreenTV</button>
+            <button class="filter-chip" data-filter="oracle"><span class="chip-dot" style="background:#f59e0b"></span>Oracle</button>
+            <button class="filter-chip" data-filter="remote"><span class="chip-dot" style="background:#ec4899"></span>Remote</button>
+            <button class="filter-chip" data-filter="utility"><span class="chip-dot" style="background:#94a3b8"></span>Utilities</button>
+        </div>
+
         <div class="stats-bar">
             <div class="stat-pill"><i class="fa-solid fa-layer-group"></i>&nbsp;<strong id="statTotal">0</strong>&nbsp;Nodes</div>
             <div class="stat-pill online"><span class="stat-dot"></span>&nbsp;<strong id="statOnline">0</strong>&nbsp;Online</div>
@@ -379,7 +464,7 @@
 
             <a href="http://103.150.57.161:8181/mpc.html" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8181/mpc.html">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="icon-wrapper greentv"><i class="fa-solid fa-network-wired"></i></div>
                     <div class="link-info">
                         <h3>Live Connection-GrnTV</h3>
                     </div>
@@ -392,7 +477,7 @@
 
             <a href="http://103.150.57.161:8181/" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8181/">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-tv"></i></div>
+                    <div class="icon-wrapper greentv"><i class="fa-solid fa-tv"></i></div>
                     <div class="link-info">
                         <h3>Live Watch-GrnTV</h3>
                     </div>
@@ -405,7 +490,7 @@
 
             <a href="https://greentv.casacam.net/" target="_blank" class="link-card" data-group="greentv" data-url="https://greentv.casacam.net/">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
+                    <div class="icon-wrapper greentv"><i class="fa-solid fa-video"></i></div>
                     <div class="link-info">
                         <h3>Green Meeting</h3>
                     </div>
@@ -418,7 +503,7 @@
 
             <a href="http://103.150.57.161:8000/" target="_blank" class="link-card" data-group="greentv" data-url="http://103.150.57.161:8000/">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-key"></i></div>
+                    <div class="icon-wrapper greentv"><i class="fa-solid fa-key"></i></div>
                     <div class="link-info">
                         <h3>Token Mngr-GrnTV</h3>
                     </div>
@@ -431,7 +516,7 @@
 
             <a href="http://170.9.226.121:3300/" target="_blank" class="link-card" data-group="greentv" data-url="http://170.9.226.121:3300/">
                 <div class="card-left">
-                    <div class="icon-wrapper"><i class="fa-solid fa-newspaper"></i></div>
+                    <div class="icon-wrapper greentv"><i class="fa-solid fa-newspaper"></i></div>
                     <div class="link-info">
                         <h3>Green News</h3>
                     </div>
@@ -509,6 +594,34 @@
                 </div>
             </a>
 
+            <div class="section-label" id="label-remote"><span class="section-dot remote"></span>Remote Access</div>
+
+            <a href="http://170.9.226.121:8080/" target="_blank" class="link-card" data-group="remote" data-url="http://170.9.226.121:8080/">
+                <div class="card-left">
+                    <div class="icon-wrapper remote"><i class="fa-brands fa-facebook"></i></div>
+                    <div class="link-info">
+                        <h3>FB Manager</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="http://cloudraja.opik.net:9090/" target="_blank" class="link-card" data-group="remote" data-url="http://cloudraja.opik.net:9090/">
+                <div class="card-left">
+                    <div class="icon-wrapper remote"><i class="fa-solid fa-desktop"></i></div>
+                    <div class="link-info">
+                        <h3>Raja Teamviewer</h3>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="status-dot"></div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
             <div class="section-label" id="label-utility"><span class="section-dot utility"></span>Utilities</div>
 
             <a href="http://103.150.57.161:3000/" target="_blank" class="link-card" data-group="utility" data-url="http://103.150.57.161:3000/">
@@ -563,21 +676,26 @@
     </footer>
 
     <script>
-        // --- 1. Real-time Search Function ---
+        // --- 1. Real-time Search + Group Filter ---
         const searchBox = document.getElementById('searchBox');
         const linkCards = document.querySelectorAll('.link-card');
         const noResults = document.getElementById('noResults');
         const sectionLabels = document.querySelectorAll('.section-label');
+        const filterChips = document.querySelectorAll('.filter-chip');
+        let currentFilter = 'all';
 
-        searchBox.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
+        function applyFilters() {
+            const query = searchBox.value.toLowerCase();
             let matches = 0;
             const groupHasVisible = {};
 
             linkCards.forEach(card => {
                 const title = card.querySelector('h3').textContent.toLowerCase();
                 const group = card.getAttribute('data-group');
-                if (title.includes(query)) {
+                const matchesSearch = title.includes(query);
+                const matchesFilter = currentFilter === 'all' || group === currentFilter;
+
+                if (matchesSearch && matchesFilter) {
                     card.style.display = 'flex';
                     matches++;
                     if (group) groupHasVisible[group] = true;
@@ -587,13 +705,24 @@
             });
 
             // Hide a section header if every card underneath it got filtered out,
-            // so searching never leaves a floating empty group title.
+            // so searching/filtering never leaves a floating empty group title.
             sectionLabels.forEach(label => {
                 const group = label.id.replace('label-', '');
                 label.style.display = groupHasVisible[group] ? 'flex' : 'none';
             });
 
             noResults.style.display = matches === 0 ? 'block' : 'none';
+        }
+
+        searchBox.addEventListener('input', applyFilters);
+
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                filterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFilter = chip.getAttribute('data-filter');
+                applyFilters();
+            });
         });
 
         // --- 2. Live Header Clock ---
@@ -603,9 +732,9 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
-            
+
             hours = hours % 12;
-            hours = hours ? hours : 12; 
+            hours = hours ? hours : 12;
             const strTime = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
             document.getElementById('liveClock').textContent = strTime;
         }
@@ -616,7 +745,7 @@
         let hue = 0;
         function animateRainbowAura() {
             if (document.body.getAttribute('data-theme') !== 'light') {
-                hue = (hue + 0.4) % 360; 
+                hue = (hue + 0.4) % 360;
                 const color1 = `hsl(${hue}, 40%, 7%)`;
                 const color2 = `hsl(${(hue + 60) % 360}, 45%, 9%)`;
                 document.body.style.setProperty('--bg-color-1', color1);
@@ -654,7 +783,7 @@
         async function checkNodeStatus(card) {
             const url = card.getAttribute('data-url');
             const dot = card.querySelector('.status-dot');
-            
+
             // Controller to drop request if it hangs too long (3.5 second timeout)
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -668,7 +797,7 @@
                     // For HTTP / Local Node targets, we run a reliable cross-origin network route sanity check
                     const img = new Image();
                     img.src = `${url}/favicon.ico?p=${Date.now()}`; // Add timestamp to break caching
-                    
+
                     img.onload = () => {
                         dot.className = 'status-dot online';
                         clearTimeout(timeoutId);
@@ -719,7 +848,7 @@
         recomputeStats();
 
         // Initialize monitoring engine run & set it to repeat every 30 seconds
-        setTimeout(triggerGlobalPing, 600); 
+        setTimeout(triggerGlobalPing, 600);
         setInterval(triggerGlobalPing, 30000);
     </script>
 </body>
