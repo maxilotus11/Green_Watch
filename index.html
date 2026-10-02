@@ -291,7 +291,7 @@
         .status-dot {
             width: 9px;
             height: 9px;
-            background-color: #94a3b8;
+            background-color: #94a3b8; /* Default state: Gray */
             border-radius: 50%;
             transition: background-color 0.4s, box-shadow 0.4s;
         }
@@ -306,25 +306,10 @@
             box-shadow: 0 0 10px #ef4444;
         }
 
-        .icon-wrapper.greentv {
-            background: rgba(34, 197, 94, 0.15);
-            color: #22c55e;
-        }
-
-        .icon-wrapper.oracle {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-        }
-
-        .icon-wrapper.remote {
-            background: rgba(236, 72, 153, 0.15);
-            color: #ec4899;
-        }
-
-        .icon-wrapper.utility {
-            background: rgba(148, 163, 184, 0.15);
-            color: #94a3b8;
-        }
+        .icon-wrapper.greentv { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .icon-wrapper.oracle { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .icon-wrapper.remote { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+        .icon-wrapper.utility { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
 
         /* Section Labels */
         .section-label {
@@ -393,7 +378,7 @@
         .stat-pill.online .stat-dot { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
         .stat-pill.offline .stat-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 
-        /* Staggered Card Entrance Animation */
+        /* Entrance Animation */
         @keyframes cardFadeIn {
             from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }
@@ -404,7 +389,6 @@
             animation: cardFadeIn 0.55s ease forwards;
         }
 
-        /* No Results Message */
         .no-results {
             display: none;
             text-align: center;
@@ -413,7 +397,6 @@
             font-size: 1.1rem;
         }
 
-        /* Footer */
         footer {
             margin-top: auto;
             padding-top: 3rem;
@@ -689,12 +672,11 @@
                 </div>
             </a>
 
-            <!-- External / Public Port Forwarded Route (Port 6009 -> 192.168.0.172) -->
             <a href="http://170.9.226.121:6009/wakeup" target="_blank" class="link-card" data-group="utility" data-url="http://170.9.226.121:6009/">
                 <div class="card-left">
                     <div class="icon-wrapper utility"><i class="fa-solid fa-globe"></i></div>
                     <div class="link-info">
-                        <h3>Wakeup WAN</h3>
+                        <h3>Wakeup (Online)</h3>
                     </div>
                 </div>
                 <div class="card-right">
@@ -703,12 +685,11 @@
                 </div>
             </a>
 
-            <!-- Direct Local LAN Route -->
-            <a href="http://192.168.0.172:6009/wakeup" target="_blank" class="link-card" data-group="utility" data-url="http://192.168.0.172:6009/">
+            <a href="http://192.168.0.172/wakeup" target="_blank" class="link-card" data-group="utility" data-url="http://192.168.0.172/">
                 <div class="card-left">
-                    <div class="icon-wrapper utility"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="icon-wrapper utility"><i class="fa-solid fa-house-signal"></i></div>
                     <div class="link-info">
-                        <h3>Wakeup LAN</h3>
+                        <h3>Wakeup (LAN)</h3>
                     </div>
                 </div>
                 <div class="card-right">
