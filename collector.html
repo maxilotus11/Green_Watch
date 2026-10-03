@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Download Link Collector</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:22px;background:#f4f6f8;color:#202124;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:1200px;margin:auto}
+.card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #0000000b}
+h1{margin:0 0 5px;font-size:27px}.sub{color:#667085;margin-bottom:15px}
+.page{font-size:13px;color:#667085;word-break:break-all}.status{margin-top:8px;color:#16834b;font-size:14px}
+.group{margin-top:16px;border:1px solid #dfe3e7;border-radius:10px;overflow:hidden;background:#fff}
+.ghead{padding:13px 14px;background:#f8f9fa;font-weight:700;font-size:16px}
+.ghead span{float:right;color:#667085;font-size:13px;font-weight:500}
+.controls{padding:9px 10px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+button{border:0;border-radius:7px;padding:9px 12px;margin:2px;cursor:pointer;font-weight:600;background:#e9edf2}
+button.copy{background:#16834b;color:#fff}
+input[type=text]{padding:8px 10px;border:1px solid #ccd2d8;border-radius:7px;font-size:13px;width:240px}
+.selcount{margin-left:auto;color:#667085;font-size:13px}
+.list{max-height:430px;overflow:auto}
+.row{display:flex;gap:10px;padding:10px 12px;border-top:1px solid #edf0f2;align-items:flex-start}
+.row{cursor:pointer;user-select:none;-webkit-user-select:none}
+.row:hover{background:#f6f8fa}
+.row input{margin-top:4px;pointer-events:none}.url{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.empty{text-align:center;color:#777;padding:28px}
+.note{font-size:12px;color:#667085;padding:9px 12px;border-top:1px solid #eee}
+
+.back{display:inline-block;margin-bottom:10px;font-size:13px;color:#4f46e5;text-decoration:none;font-weight:600}
+.back:hover{text-decoration:underline}
+details summary{cursor:pointer;font-weight:700}
+details ol{margin:12px 0 10px 20px;line-height:1.8;font-size:14px}
+details p{font-size:13px;color:#667085;margin:8px 0}
+.bmbtn{display:inline-block;background:#4f46e5;color:#fff;padding:7px 14px;border-radius:7px;text-decoration:none;font-weight:600;cursor:grab}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<a class="back" href="./">&larr; Back to Hub</a>
+<h1>Download Link Collector</h1>
+<div class="sub">Each link group has independent controls and selections. Tip: click and drag over rows to toggle many at once, or click one row then Shift+click another to toggle the whole range.</div>
+<div class="page" id="page"></div>
+<div class="status" id="status"></div>
+</div>
+
+<div class="card">
+<details id="setupBox">
+<summary>Bookmarklet setup (one time)</summary>
+<ol>
+<li>Show your bookmarks bar (Ctrl+Shift+B).</li>
+<li>Drag this button onto the bookmarks bar: <a id="bm" class="bmbtn" href="#" onclick="return false">Collect Links</a></li>
+<li>Open any page with download links and click that bookmark. This page opens with the links already loaded.</li>
+</ol>
+<p>Already have a bookmark? Edit it and paste the code below into its URL field (replacing the old code).</p>
+<button class="copy" onclick="copyBm()">Copy bookmarklet code</button>
+</details>
+</div>
+
+<div class="group">
+<div class="ghead">1. Links WITH file extension <span id="fileTotal"></span></div>
+<div class="controls">
+<button onclick="groupSelect('file',true)">Select All</button>
+<button onclick="groupSelect('file',false)">Unselect All</button>
+<button onclick="groupInvert('file')">Invert</button>
+<button class="copy" onclick="groupCopy('file')">Copy Selected Links</button>
+<input id="fileFilter" type="text" placeholder="Filter this group..." oninput="renderGroup('file')">
+<span class="selcount" id="fileSelected"></span>
+</div>
+<div class="list" id="fileList"></div>
+</div>
+
+<div class="group">
+<div class="ghead">2. Links WITHOUT file extension <span id="noExtTotal"></span></div>
+<div class="controls">
+<button onclick="groupSelect('noExt',true)">Select All</button>
+<button onclick="groupSelect('noExt',false)">Unselect All</button>
+<button onclick="groupInvert('noExt')">Invert</button>
+<button class="copy" onclick="groupCopy('noExt')">Copy Selected Links</button>
+<input id="noExtFilter" type="text" placeholder="Filter this group..." oninput="renderGroup('noExt')">
+<span class="selcount" id="noExtSelected"></span>
+</div>
+<div class="list" id="noExtList"></div>
+<div class="note">These may be redirect/download links such as /d/e63R or URLs with hidden file types.</div>
+</div>
+</div>
+
+<script>
+function readHash(){try{const m=location.hash.match(/^#d=(.*)$/);if(m)return JSON.parse(decodeURIComponent(m[1]))}catch(e){}return null}
+const fromHash=readHash();
+const data=fromHash||{page:"",withExt:[],withoutExt:[]};
+const groups={
+ file:{links:[...new Set(data.withExt||[])],selected:new Set(data.withExt||[]),visible:[],boxes:[],anchor:null},
+ noExt:{links:[...new Set(data.withoutExt||[])],selected:new Set(data.withoutExt||[]),visible:[],boxes:[],anchor:null}
+};
+const ids=g=>g==="file"?{f:"fileFilter",l:"fileList",s:"fileSelected",t:"fileTotal"}:{f:"noExtFilter",l:"noExtList",s:"noExtSelected",t:"noExtTotal"};
+document.getElementById("page").textContent=data.page||"";
+document.getElementById("status").textContent=fromHash?(groups.file.links.length+groups.noExt.links.length)+" links collected.":"No links loaded yet. Use the bookmarklet on a download page (setup below).";
+document.getElementById("setupBox").open=!fromHash;
+
+function bookmarkletCode(){
+ const T=location.origin+location.pathname;
+ const code=String.raw`(()=>{const T="__T__";const file=/\.(zip|rar|7z|iso|dmg|pkg|exe|msi|deb|rpm|apk|ipa|tar|gz|bz2|xz|tgz|tbz|zst|cab|img|bin|msix|appx|jar|war|aab|mp4|mkv|avi|mov|wmv|flv|webm|mp3|wav|flac|m4a|pdf|doc|docx|xls|xlsx|ppt|pptx|csv|rtf|txt|epub|mobi|torrent)(?:[?#].*)?$/i;const image=/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|tif|tiff|avif)(?:[?#].*)?$/i;const bad=/^(mailto:|tel:|javascript:|#)/i;const badText=/(facebook|instagram|twitter|x\.com|youtube|login|log\s*in|sign\s*up|register|contact|home|about|privacy|terms|menu|search|next|previous|share|comment)/i;const W=[],N=[];for(const a of document.querySelectorAll("a[href]")){const raw=a.getAttribute("href")||"";if(!raw||bad.test(raw))continue;let u;try{u=new URL(raw,location.href)}catch(e){continue}if(!/^https?:$/i.test(u.protocol)||image.test(u.href))continue;const text=((a.innerText||a.textContent||"")+" "+(a.getAttribute("title")||"")+" "+(a.getAttribute("download")||"")).replace(/\s+/g," ").trim();if(badText.test(text)&&!file.test(u.href))continue;(file.test(u.href)?W:N).push(u.href)}const withExt=[...new Set(W)],withoutExt=[...new Set(N)].filter(u=>!withExt.includes(u));const w=window.open(T+"#d="+encodeURIComponent(JSON.stringify({page:location.href,withExt,withoutExt})),"_blank");if(!w)alert("The collector tab was blocked. Allow pop-ups for this site and try again.")})()`;
+ return "javascript:"+code.replace("__T__",T);
+}
+document.getElementById("bm").setAttribute("href",bookmarkletCode());
+async function copyBm(){
+ const text=bookmarkletCode();
+ try{await navigator.clipboard.writeText(text)}
+ catch(e){const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove()}
+ document.getElementById("status").textContent="Bookmarklet code copied. Paste it into your bookmark's URL field.";
+}
+
+function updateCount(g){
+ document.getElementById(ids(g).s).textContent=groups[g].selected.size+" selected";
+}
+function renderGroup(g){
+ const G=groups[g],I=ids(g);
+ const filter=document.getElementById(I.f),list=document.getElementById(I.l);
+ const q=filter.value.toLowerCase().trim();
+ G.visible=G.links.filter(u=>!q||u.toLowerCase().includes(q));
+ G.boxes=[];
+ document.getElementById(I.t).textContent=G.links.length+" total";
+ updateCount(g);
+ if(!G.visible.length){list.innerHTML='<div class="empty">No matching links.</div>';return}
+ list.innerHTML="";
+ G.visible.forEach((u,i)=>{
+   const row=document.createElement("div"),cb=document.createElement("input"),lab=document.createElement("label");
+   row.className="row";row.dataset.i=i;
+   cb.type="checkbox";cb.tabIndex=-1;cb.checked=G.selected.has(u);
+   lab.className="url";lab.textContent=u;
+   row.append(cb,lab);list.append(row);G.boxes.push(cb);
+ });
+}
+function setRange(g,a,b,value){
+ const G=groups[g],lo=Math.min(a,b),hi=Math.max(a,b);
+ for(let i=lo;i<=hi;i++){
+   const u=G.visible[i];
+   if(value)G.selected.add(u);else G.selected.delete(u);
+   G.boxes[i].checked=value;
+ }
+ updateCount(g);
+}
+let drag=null;
+function rowIndex(e){const r=e.target.closest?e.target.closest(".row"):null;return r?+r.dataset.i:-1}
+function bindList(g){
+ const list=document.getElementById(ids(g).l);
+ list.addEventListener("mousedown",e=>{
+   if(e.button!==0)return;
+   const i=rowIndex(e);if(i<0)return;
+   e.preventDefault();
+   const G=groups[g],u=G.visible[i];
+   const ai=G.anchor===null?-1:G.visible.indexOf(G.anchor);
+   if(e.shiftKey&&ai>=0){
+     setRange(g,ai,i,G.selected.has(G.anchor));
+   }else{
+     const v=!G.selected.has(u);
+     setRange(g,i,i,v);
+     G.anchor=u;
+     drag={g:g,value:v,last:i};
+   }
+ });
+ list.addEventListener("mouseover",e=>{
+   if(!drag||drag.g!==g)return;
+   const i=rowIndex(e);
+   if(i<0||i===drag.last)return;
+   setRange(g,drag.last,i,drag.value);
+   drag.last=i;
+ });
+}
+document.addEventListener("mouseup",()=>{drag=null});
+window.addEventListener("blur",()=>{drag=null});
+
+function groupSelect(g,value){
+ const G=groups[g];
+ G.selected=value?new Set(G.links):new Set();
+ renderGroup(g);
+}
+function groupInvert(g){
+ const G=groups[g],next=new Set();
+ G.links.forEach(u=>{if(!G.selected.has(u))next.add(u)});
+ G.selected=next;renderGroup(g);
+}
+async function groupCopy(g){
+ const G=groups[g],text=[...G.selected].join(String.fromCharCode(10));
+ if(!text){alert("No links selected in this group.");return}
+ try{await navigator.clipboard.writeText(text)}
+ catch(e){const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove()}
+ document.getElementById("status").textContent="Copied "+G.selected.size+" links from the "+(g==="file"?"file-extension":"extensionless")+" group.";
+}
+bindList("file");bindList("noExt");
+renderGroup("file");renderGroup("noExt");
+</script>
+</body>
+</html>
