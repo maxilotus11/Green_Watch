@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Filter & Drive Link Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 6px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #fff;
+        }
+
+        textarea {
+            height: 280px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+        }
+
+        .actions {
+            margin-top: 14px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        button {
+            padding: 10px 18px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0052a3;
+        }
+
+        button.secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        button.secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .toast {
+            display: none;
+            color: #16a34a;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .drive-links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Section 1: Text Before Colon Extractor -->
+    <div class="card">
+        <h2>Text Before Colon Extractor</h2>
+        <p>Filters lines to retain text before the colon (<code>:</code>) and separates output lines with blank spaces.</p>
+
+        <div class="container">
+            <div class="box">
+                <label for="inputText">Input Text</label>
+                <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+            </div>
+            <div class="box">
+                <label for="outputText">Filtered Output</label>
+                <textarea id="outputText" readonly placeholder="Output will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="actions">
+            <span class="toast" id="textToast">Copied to clipboard!</span>
+            <button class="secondary" id="clearTextBtn">Clear</button>
+            <button id="copyTextBtn">Copy Output</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Google Drive Direct Download Link Generator -->
+    <div class="card">
+        <h2>Google Drive Link Converter</h2>
+        <p>Paste a Google Drive view/share link (or multiple lines) to convert it to a direct download link.</p>
+
+        <div class="drive-links">
+            <div class="box">
+                <label for="driveInput">Google Drive Share Link(s)</label>
+                <textarea id="driveInput" style="height: 100px;" placeholder="https://drive.google.com/file/d/1nzeIiuJYCRmtC8kn_FTfnPBwcBhz6PJ4/view?usp=drive_link"></textarea>
+            </div>
+            <div class="box">
+                <label for="driveOutput">Direct Download Link(s)</label>
+                <textarea id="driveOutput" style="height: 100px;" readonly placeholder="Direct link will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="actions">
+            <span class="toast" id="driveToast">Copied to clipboard!</span>
+            <button class="secondary" id="clearDriveBtn">Clear</button>
+            <button id="copyDriveBtn">Copy Direct Link</button>
+        </div>
+    </div>
+
+    <script>
+        // --- SECTION 1: Text Before Colon Filter ---
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const copyTextBtn = document.getElementById('copyTextBtn');
+        const clearTextBtn = document.getElementById('clearTextBtn');
+        const textToast = document.getElementById('textToast');
+
+        function filterText() {
+            const rawText = inputText.value;
+            const lines = rawText.split('\n');
+            const processedLines = [];
+
+            for (let line of lines) {
+                const trimmedLine = line.trim();
+                if (trimmedLine) {
+                    const colonIndex = trimmedLine.indexOf(':');
+                    if (colonIndex !== -1) {
+                        processedLines.push(trimmedLine.substring(0, colonIndex).trim());
+                    } else {
+                        processedLines.push(trimmedLine);
+                    }
+                }
+            }
+
+            outputText.value = processedLines.join('\n\n');
+        }
+
+        inputText.addEventListener('input', filterText);
+
+        copyTextBtn.addEventListener('click', () => {
+            if (!outputText.value) return;
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                textToast.style.display = 'inline';
+                setTimeout(() => { textToast.style.display = 'none'; }, 2000);
+            });
+        });
+
+        clearTextBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            inputText.focus();
+        });
+
+        // --- SECTION 2: Google Drive Direct Link Converter ---
+        const driveInput = document.getElementById('driveInput');
+        const driveOutput = document.getElementById('driveOutput');
+        const copyDriveBtn = document.getElementById('copyDriveBtn');
+        const clearDriveBtn = document.getElementById('clearDriveBtn');
+        const driveToast = document.getElementById('driveToast');
+
+        function convertDriveLinks() {
+            const lines = driveInput.value.split('\n');
+            const convertedLinks = [];
+
+            // RegEx to capture file ID from various Google Drive URL formats
+            const regex = /\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)/;
+
+            for (let line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+
+                const match = trimmed.match(regex);
+                if (match) {
+                    const extractedId = match[1] || match[2];
+                    convertedLinks.push(`https://drive.usercontent.google.com/download?id=${extractedId}`);
+                } else {
+                    convertedLinks.push('Invalid Google Drive Link');
+                }
+            }
+
+            driveOutput.value = convertedLinks.join('\n');
+        }
+
+        driveInput.addEventListener('input', convertDriveLinks);
+
+        copyDriveBtn.addEventListener('click', () => {
+            if (!driveOutput.value) return;
+            navigator.clipboard.writeText(driveOutput.value).then(() => {
+                driveToast.style.display = 'inline';
+                setTimeout(() => { driveToast.style.display = 'none'; }, 2000);
+            });
+        });
+
+        clearDriveBtn.addEventListener('click', () => {
+            driveInput.value = '';
+            driveOutput.value = '';
+            driveInput.focus();
+        });
+    </script>
+
+</body>
+</html>
